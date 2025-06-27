@@ -37,9 +37,9 @@ output application/json
 		</error-handler>
 	</flow>
 	<flow name="archive-file-flow" doc:id="49b1091c-4d9c-4199-b231-eed629c80005" >
-		<logger level="INFO" doc:name="Start Logger" doc:id="6fde780f-97df-4a76-aa23-2578d4712d22" message='#["Received req to fetch file for $(vars.fileDate)"]' />
+		<logger level="INFO" doc:name="Start Logger" doc:id="6fde780f-97df-4a76-aa23-2578d4712d22" message='#["Received req to archive file for $(vars.fileDate)"]' />
 		<sftp:move doc:name="Archive File" doc:id="cd377047-75a8-45b7-b61b-96fd81d498ec" config-ref="azure-sftp-config" sourcePath='#[p("sftp.path") ++ "/inventory_$(vars.fileDate).csv"]' targetPath='#[p("sftp.archive.path")]'/>
-		<logger level="INFO" doc:name="End Logger" doc:id="37a6f8ff-79f2-4628-90bd-c458ca2842bc" message="File Read Successful" />
+		<logger level="INFO" doc:name="End Logger" doc:id="37a6f8ff-79f2-4628-90bd-c458ca2842bc" message="File Archive Successful" />
 		<ee:transform doc:name="DW stream the payload" doc:id="de9749d3-95ff-4708-a4c1-286e447ded81" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
