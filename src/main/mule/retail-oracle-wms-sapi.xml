@@ -130,13 +130,7 @@ output application/json
         </error-handler>
     </flow>
     <flow name="get:\inventory:retail-oracle-wms-sapi-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-"SKU,StoreId,Type,Quantity,Timestamp 345987YGMJR94,JSUYZ,Backorder,88,06/25/25 09:53 793830LURNW48,JJSAY,Backorder,52,06/26/25 01:19 736046PFWXQ42,QPPPV,Backorder,53,06/25/25 20:28 496439FSDKR58,IOJUL,Backorder,8,06/24/25 18:51 589771ZRFTY60,NEXLU,Standard,75,06/26/25 04:13" as String {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+        <set-variable value="#[attributes.queryParams.date]" doc:name="fileDate" doc:id="e14aa3b8-54f0-4832-aa9c-6c8f54dd574b" variableName="fileDate"/>
+		<flow-ref doc:name="fetch-file-from-sftp-flow" doc:id="4184e139-5a04-45e6-a816-35721d4f2d34" name="fetch-file-from-sftp-flow"/>
     </flow>
 </mule>
