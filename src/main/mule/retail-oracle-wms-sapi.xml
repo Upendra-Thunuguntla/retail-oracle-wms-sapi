@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
-    <http:listener-config name="retail-oracle-wms-sapi-httpListenerConfig">
-        <http:listener-connection host="0.0.0.0" port="8081" />
-    </http:listener-config>
-    <apikit:config name="retail-oracle-wms-sapi-config" api="resource::9fe6d476-6289-4c93-a9a1-68b2bca4ae07:retail-oracle-wms-sapi:1.0.0:raml:zip:retail-oracle-wms-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+  
     <flow name="retail-oracle-wms-sapi-main">
         <http:listener config-ref="retail-oracle-wms-sapi-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -28,7 +25,7 @@ output application/json
                         <ee:set-variable variableName="httpStatus">400</ee:set-variable>
                     </ee:variables>
                 </ee:transform>
-				<flow-ref doc:name="common-error-appender" doc:id="86b5a2a9-5040-48f2-bf18-771c15c0fb34" name="common-error-appender" />
+                <flow-ref doc:name="common-error-appender" doc:id="86b5a2a9-5040-48f2-bf18-771c15c0fb34" name="common-error-appender" />
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_FOUND">
                 <ee:transform doc:name="Transform Message">
@@ -42,7 +39,7 @@ output application/json
                         <ee:set-variable variableName="httpStatus">404</ee:set-variable>
                     </ee:variables>
                 </ee:transform>
-				<flow-ref doc:name="common-error-appender" doc:id="70e2cc7d-9a26-4373-a81b-be1270bbc003" name="common-error-appender" />
+                <flow-ref doc:name="common-error-appender" doc:id="70e2cc7d-9a26-4373-a81b-be1270bbc003" name="common-error-appender" />
             </on-error-propagate>
             <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
                 <ee:transform doc:name="Transform Message">
@@ -56,7 +53,7 @@ output application/json
                         <ee:set-variable variableName="httpStatus">405</ee:set-variable>
                     </ee:variables>
                 </ee:transform>
-				<flow-ref doc:name="common-error-appender" doc:id="d3665d7b-9170-43e2-b889-5943657ae26f" name="common-error-appender" />
+                <flow-ref doc:name="common-error-appender" doc:id="d3665d7b-9170-43e2-b889-5943657ae26f" name="common-error-appender" />
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
                 <ee:transform doc:name="Transform Message">
@@ -70,7 +67,7 @@ output application/json
                         <ee:set-variable variableName="httpStatus">406</ee:set-variable>
                     </ee:variables>
                 </ee:transform>
-				<flow-ref doc:name="common-error-appender" doc:id="84bded01-7b6b-485c-a887-ac104ee47c33" name="common-error-appender" />
+                <flow-ref doc:name="common-error-appender" doc:id="84bded01-7b6b-485c-a887-ac104ee47c33" name="common-error-appender" />
             </on-error-propagate>
             <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
                 <ee:transform doc:name="Transform Message">
@@ -84,7 +81,7 @@ output application/json
                         <ee:set-variable variableName="httpStatus">415</ee:set-variable>
                     </ee:variables>
                 </ee:transform>
-				<flow-ref doc:name="common-error-appender" doc:id="39e2d3fb-22c3-4743-80cb-76054a7929ce" name="common-error-appender" />
+                <flow-ref doc:name="common-error-appender" doc:id="39e2d3fb-22c3-4743-80cb-76054a7929ce" name="common-error-appender" />
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
                 <ee:transform doc:name="Transform Message">
@@ -98,7 +95,7 @@ output application/json
                         <ee:set-variable variableName="httpStatus">501</ee:set-variable>
                     </ee:variables>
                 </ee:transform>
-				<flow-ref doc:name="common-error-appender" doc:id="4fc7e095-aaed-4367-841c-d11740cf5cb2" name="common-error-appender" />
+                <flow-ref doc:name="common-error-appender" doc:id="4fc7e095-aaed-4367-841c-d11740cf5cb2" name="common-error-appender" />
             </on-error-propagate>
         </error-handler>
     </flow>
@@ -130,7 +127,11 @@ output application/json
         </error-handler>
     </flow>
     <flow name="get:\inventory:retail-oracle-wms-sapi-config">
-        <set-variable value="#[attributes.queryParams.date]" doc:name="fileDate" doc:id="e14aa3b8-54f0-4832-aa9c-6c8f54dd574b" variableName="fileDate"/>
-		<flow-ref doc:name="fetch-file-from-sftp-flow" doc:id="4184e139-5a04-45e6-a816-35721d4f2d34" name="fetch-file-from-sftp-flow"/>
+        <set-variable value='#[attributes.queryParams.date &#10;as Date {format : "yyyy-MM-dd"} &#10;as String {format: "dd-MM-yyyy"}]' doc:name="fileDate" doc:id="e14aa3b8-54f0-4832-aa9c-6c8f54dd574b" variableName="fileDate" />
+        <flow-ref doc:name="fetch-file-from-sftp-flow" doc:id="4184e139-5a04-45e6-a816-35721d4f2d34" name="fetch-file-from-sftp-flow" />
+    </flow>
+    <flow name="delete:\inventory:retail-oracle-wms-sapi-config">
+        <set-variable value='#[attributes.queryParams.date as Date {format : "yyyy-MM-dd"} as String {format: "dd-MM-yyyy"}]' doc:name="fileDate" doc:id="9d5932f2-6dbb-4ff6-a301-85d2f84b0e55" variableName="fileDate" />
+		<flow-ref doc:name="Flow Reference" doc:id="44347677-ca8d-4922-8a91-a668b946446c" name="archive-file-flow"/>
     </flow>
 </mule>
