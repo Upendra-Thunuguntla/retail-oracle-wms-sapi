@@ -153,9 +153,11 @@ output application/json
 		</error-handler>
     </flow>
     <flow name="post:\inventory:application\csv:retail-oracle-wms-sapi-config">
+		<set-variable value='#[attributes.queryParams.date as Date {format : "yyyy-MM-dd"} as String {format: "dd-MM-yyyy"}]' doc:name="fileDate" doc:id="9919eeaf-ff40-4df4-b1a6-bad593b5683a" variableName="fileDate" />
 		<flow-ref doc:name="write-file-to-sftp-flow" doc:id="58225711-d70e-4757-9ac8-e2485bef0218" name="write-file-to-sftp-flow"/>
     </flow>
     <flow name="post:\inventory:text\csv:retail-oracle-wms-sapi-config">
+		<set-variable value='#[attributes.queryParams.date as Date {format : "yyyy-MM-dd"} as String {format: "dd-MM-yyyy"}]' doc:name="fileDate" doc:id="5cfbf0bd-761b-4559-832c-5a2b87563e58" variableName="fileDate" />
 		<flow-ref doc:name="write-file-to-sftp-flow" doc:id="dbbda59f-84f2-471b-81dc-85ba0e167ad0" name="write-file-to-sftp-flow" />
     </flow>
 </mule>

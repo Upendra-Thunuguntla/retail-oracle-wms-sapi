@@ -74,7 +74,7 @@ output application/json
 		</error-handler>
 	</flow>
 	<flow name="write-file-to-sftp-flow" doc:id="714ebb5e-7466-4755-8b03-c174a9500550" >
-		<set-variable value='#["invalid_$(now() as String {format : "dd-MM-yyyy"}).csv"]' doc:name="fileName" doc:id="02a7938f-5a4b-4e83-b5c7-148f7a168318" variableName="fileName"/>
+		<set-variable value='#["invalid_$(vars.fileDate).csv"]' doc:name="fileName" doc:id="02a7938f-5a4b-4e83-b5c7-148f7a168318" variableName="fileName"/>
 		<logger level="INFO" doc:name="Start Logger" doc:id="cbe0be48-fa31-4e61-9de2-add84861f5d8" message='#["Received req to process file for $(vars.fileName)"]' />
 		<sftp:write doc:name="Write to File" doc:id="f7fb6ae6-f0dc-40d8-a203-2db189770606" config-ref="azure-sftp-config" path='#[p("sftp.error.path") ++ "/$(vars.fileName)"]' />
 		<logger level="INFO" doc:name="End Logger" doc:id="03412819-53a3-4ec3-995a-1b3b1d9ed25b" message="File processed successfuly" />
