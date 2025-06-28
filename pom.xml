@@ -55,13 +55,6 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
-			<groupId>9fe6d476-6289-4c93-a9a1-68b2bca4ae07</groupId>
-			<artifactId>retail-oracle-wms-sapi</artifactId>
-			<version>1.0.1</version>
-			<classifier>raml</classifier>
-			<type>zip</type>
-		</dependency>
-		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-apikit-module</artifactId>
 			<version>1.11.5</version>
@@ -83,6 +76,13 @@
 			<groupId>net.i2p.crypto</groupId>
 			<artifactId>eddsa</artifactId>
 			<version>0.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>9fe6d476-6289-4c93-a9a1-68b2bca4ae07</groupId>
+			<artifactId>retail-oracle-wms-sapi</artifactId>
+			<version>1.0.2</version>
+			<classifier>raml</classifier>
+			<type>zip</type>
 		</dependency>
 	</dependencies>
 

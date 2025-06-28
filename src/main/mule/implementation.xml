@@ -10,7 +10,6 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 		<sftp:read doc:name="inventory from Azure SFTP" doc:id="ad09050e-2585-4397-85ee-16bc61816bfb" config-ref="azure-sftp-config" path='#[p("sftp.path") ++ "/inventory_$(vars.fileDate).csv"]' outputMimeType="application/csv">
 			<ee:repeatable-file-store-stream inMemorySize="1" bufferUnit="MB" />
 		</sftp:read>
-		<logger level="INFO" doc:name="End Logger" doc:id="1a299435-6664-4e57-9c0b-ece78874df72" message="File Read Successful"/>
 		<ee:transform doc:name="DW stream the payload" doc:id="882e0a1c-d299-4722-852b-5a409ceb3146" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -19,6 +18,7 @@ output application/csv deferred=true
 payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="1a299435-6664-4e57-9c0b-ece78874df72" message="File Read Successful" />
 		<error-handler >
 			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="19032d7c-17ea-4787-9abf-666d7a3b497c" type="ANY">
 				<ee:transform doc:name="DW set error messsage" doc:id="915c3152-a267-4e73-9ba0-f89c766617ae" >
@@ -30,6 +30,9 @@ output application/json
 	message : "Unable to read the required file"
 }]]></ee:set-payload>
 					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+					</ee:variables>
 				</ee:transform>
 				<flow-ref doc:name="common-error-appender" doc:id="891cefd0-2722-4df8-899f-086ed03fdff2" name="common-error-appender"/>
 				<logger level="INFO" doc:name="Error" doc:id="a00b1ffb-8a31-4f91-99ab-b792d6216f77" message="#[payload]"/>
@@ -39,7 +42,6 @@ output application/json
 	<flow name="archive-file-flow" doc:id="49b1091c-4d9c-4199-b231-eed629c80005" >
 		<logger level="INFO" doc:name="Start Logger" doc:id="6fde780f-97df-4a76-aa23-2578d4712d22" message='#["Received req to archive file for $(vars.fileDate)"]' />
 		<sftp:move doc:name="Archive File" doc:id="cd377047-75a8-45b7-b61b-96fd81d498ec" config-ref="azure-sftp-config" sourcePath='#[p("sftp.path") ++ "/inventory_$(vars.fileDate).csv"]' targetPath='#[p("sftp.archive.path")]'/>
-		<logger level="INFO" doc:name="End Logger" doc:id="37a6f8ff-79f2-4628-90bd-c458ca2842bc" message="File Archive Successful" />
 		<ee:transform doc:name="DW stream the payload" doc:id="de9749d3-95ff-4708-a4c1-286e447ded81" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -50,6 +52,7 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="End Logger" doc:id="37a6f8ff-79f2-4628-90bd-c458ca2842bc" message="File Archive Successful" />
 		<error-handler >
 			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="9bbdf49d-7b1e-43bb-89c8-d7add0cb9583" type="ANY" >
 				<ee:transform doc:name="DW set error messsage" doc:id="b308011f-846c-4876-a7ef-f9939c356e6c" >
@@ -61,9 +64,47 @@ output application/json
 	message : "Unable to archive the required file"
 }]]></ee:set-payload>
 					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+					</ee:variables>
 				</ee:transform>
 				<flow-ref doc:name="common-error-appender" doc:id="d98c4cf4-7e58-41e2-be3a-f98c32f20286" name="common-error-appender" />
 				<logger level="INFO" doc:name="Error" doc:id="599b34ff-dbad-4ce7-8b4e-4bf1d47b1c0f" message="#[payload]" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="write-file-to-sftp-flow" doc:id="714ebb5e-7466-4755-8b03-c174a9500550" >
+		<set-variable value='#["invalid_$(now() as String {format : "dd-MM-yyyy"}).csv"]' doc:name="fileName" doc:id="02a7938f-5a4b-4e83-b5c7-148f7a168318" variableName="fileName"/>
+		<logger level="INFO" doc:name="Start Logger" doc:id="cbe0be48-fa31-4e61-9de2-add84861f5d8" message='#["Received req to process file for $(vars.fileName)"]' />
+		<sftp:write doc:name="Write to File" doc:id="f7fb6ae6-f0dc-40d8-a203-2db189770606" config-ref="azure-sftp-config" path='#[p("sftp.error.path") ++ "/$(vars.fileName)"]' />
+		<logger level="INFO" doc:name="End Logger" doc:id="03412819-53a3-4ec3-995a-1b3b1d9ed25b" message="File processed successfuly" />
+		<ee:transform doc:name="DW set response message" doc:id="19bb6c83-5948-4467-9610-75b93aec1159" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message : "Error File processed successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4579574e-45e1-40f2-9792-957986850fd9" type="ANY" >
+				<ee:transform doc:name="DW set error messsage" doc:id="7318a821-fb5a-4c38-a15f-79aaa6aba15d" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message : "Unable to read the required file"
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="common-error-appender" doc:id="d03706f6-0ea1-40d4-b48d-56b78c635960" name="common-error-appender" />
+				<logger level="INFO" doc:name="Error" doc:id="b9363e4f-4a06-469f-aeb9-9f630482d154" message="#[payload]" />
 			</on-error-continue>
 		</error-handler>
 	</flow>

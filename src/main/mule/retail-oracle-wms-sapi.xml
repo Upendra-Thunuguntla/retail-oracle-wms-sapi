@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
-  
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
     <flow name="retail-oracle-wms-sapi-main">
         <http:listener config-ref="retail-oracle-wms-sapi-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -99,39 +99,63 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="retail-oracle-wms-sapi-console">
-        <http:listener config-ref="retail-oracle-wms-sapi-httpListenerConfig" path="/console/*">
-            <http:response statusCode="#[vars.httpStatus default 200]">
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
-            </http:response>
-            <http:error-response statusCode="#[vars.httpStatus default 500]">
-                <http:body>#[payload]</http:body>
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
-            </http:error-response>
-        </http:listener>
-        <apikit:console config-ref="retail-oracle-wms-sapi-config" />
-        <error-handler>
-            <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform doc:name="Transform Message">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{message: "Resource not found"}]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-            </on-error-propagate>
-        </error-handler>
-    </flow>
     <flow name="get:\inventory:retail-oracle-wms-sapi-config">
-        <set-variable value='#[attributes.queryParams.date &#10;as Date {format : "yyyy-MM-dd"} &#10;as String {format: "dd-MM-yyyy"}]' doc:name="fileDate" doc:id="e14aa3b8-54f0-4832-aa9c-6c8f54dd574b" variableName="fileDate" />
+        <set-variable value="#[attributes.queryParams.date &#xA;as Date {format : &quot;yyyy-MM-dd&quot;} &#xA;as String {format: &quot;dd-MM-yyyy&quot;}]" doc:name="fileDate" doc:id="e14aa3b8-54f0-4832-aa9c-6c8f54dd574b" variableName="fileDate" />
         <flow-ref doc:name="fetch-file-from-sftp-flow" doc:id="4184e139-5a04-45e6-a816-35721d4f2d34" name="fetch-file-from-sftp-flow" />
     </flow>
     <flow name="delete:\inventory:retail-oracle-wms-sapi-config">
-        <set-variable value='#[attributes.queryParams.date as Date {format : "yyyy-MM-dd"} as String {format: "dd-MM-yyyy"}]' doc:name="fileDate" doc:id="9d5932f2-6dbb-4ff6-a301-85d2f84b0e55" variableName="fileDate" />
-		<flow-ref doc:name="Flow Reference" doc:id="44347677-ca8d-4922-8a91-a668b946446c" name="archive-file-flow"/>
+        <set-variable value="#[attributes.queryParams.date as Date {format : &quot;yyyy-MM-dd&quot;} as String {format: &quot;dd-MM-yyyy&quot;}]" doc:name="fileDate" doc:id="9d5932f2-6dbb-4ff6-a301-85d2f84b0e55" variableName="fileDate" />
+        <flow-ref doc:name="archive-file-flow" doc:id="44347677-ca8d-4922-8a91-a668b946446c" name="archive-file-flow" />
+    </flow>
+    <flow name="get:\health-check:retail-oracle-wms-sapi-config">
+        <sftp:list doc:name="Check the SFTP connectivity" doc:id="ee998896-3cbf-43bd-8073-811f4f50f69d" config-ref="azure-sftp-config" directoryPath='#[p("sftp.path")]'/>
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  name: app.name,
+  status: "UP",
+  message: "API is healthy and running.",
+  timestamp: now(),
+  dependencies: [
+    {
+      name: "WMS SFTP",
+      status: "UP"
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="9e9d7a2e-28af-43b4-b566-a98ed7fb165f" >
+				<ee:transform doc:name="Transform Message" doc:id="80a5e966-1ce7-48e2-ac18-3940a24fc313" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  name: app.name,
+  status: "UP",
+  message: "API is having issues. Please Check the logs",
+  timestamp: now(),
+  dependencies: [
+    {
+      name: "WMS SFTP",
+      status: "DOWN"
+    }
+  ]
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="post:\inventory:application\csv:retail-oracle-wms-sapi-config">
+		<flow-ref doc:name="write-file-to-sftp-flow" doc:id="58225711-d70e-4757-9ac8-e2485bef0218" name="write-file-to-sftp-flow"/>
+    </flow>
+    <flow name="post:\inventory:text\csv:retail-oracle-wms-sapi-config">
+		<flow-ref doc:name="write-file-to-sftp-flow" doc:id="dbbda59f-84f2-471b-81dc-85ba0e167ad0" name="write-file-to-sftp-flow" />
     </flow>
 </mule>
