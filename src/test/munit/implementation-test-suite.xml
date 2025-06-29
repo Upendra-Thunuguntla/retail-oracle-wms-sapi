@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<munit:config name="implementation-test-suite.xml" />
+	<munit:test name="implementation-test-suite-fetch-file-from-sftp-flow-success-test" doc:id="8939dafc-b0b1-4504-81de-ecbb7a686824" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="sftp:read" doc:id="9c48c9ea-a96c-44c5-97de-7f145f2537e9" processor="sftp:read">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="inventory from Azure SFTP" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ad09050e-2585-4397-85ee-16bc61816bfb" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="azure-sftp-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[[]]" mediaType="application/csv" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="DW set filename &amp; storeId" doc:id="c4612600-c72b-496f-9581-02e0d198a470">
+				<ee:message>
+					<ee:set-attributes><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'date': "2025-06-28"
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="get:\inventory:retail-oracle-wms-sapi-config" doc:id="ff3263a0-3355-4ca5-9c48-3376770f60c8" name="get:\inventory:retail-oracle-wms-sapi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="fc5711db-326e-478b-80b6-ca212c98f2bc" processor="logger">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Start Logger" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1c81fabc-112e-443f-a133-f42c58977390" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-suite-fetch-file-from-sftp-flow-fail-test" doc:id="723a733b-2ba9-47c6-add0-cb84c4739fa8" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="sftp:read" doc:id="4996a09f-9172-426b-87c3-6dcca9d321d5" processor="sftp:read" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="inventory from Azure SFTP" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="ad09050e-2585-4397-85ee-16bc61816bfb" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="azure-sftp-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[[]]" mediaType="application/csv" encoding="UTF-8" />
+					<munit-tools:error typeId="SFTP:ILLEGAL_PATH" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="DW set filename &amp; storeId" doc:id="e8a8e760-f918-4937-8f50-37a37137a162" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'date': "2025-06-28"
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="get:\inventory:retail-oracle-wms-sapi-config" doc:id="dca21db2-b78b-4116-af3a-741faed4b5f5" name="get:\inventory:retail-oracle-wms-sapi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="8e448777-b288-4922-b048-3a12a68634f7" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Start Logger" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="1c81fabc-112e-443f-a133-f42c58977390" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-suite-archive-file-success-test" doc:id="470406eb-f5cc-4ff2-a692-1055e71174c9" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="sftp:move" doc:id="213b011e-8d28-4e34-b3d7-e72836d61a27" processor="sftp:move" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Archive File" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cd377047-75a8-45b7-b61b-96fd81d498ec" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="azure-sftp-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[[]]" mediaType="application/csv" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="DW set filename &amp; storeId" doc:id="177fb227-3f25-4c84-9045-de0a858c0f51" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'date': "2025-06-28"
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="delete:\inventory:retail-oracle-wms-sapi-config" doc:id="40f86066-6273-44c7-95a7-dfec239ebe94" name="delete:\inventory:retail-oracle-wms-sapi-config" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="c6476945-fd69-4823-b6ee-612bfc66c0a7" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Start Logger" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="6fde780f-97df-4a76-aa23-2578d4712d22" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-suite-archive-file-fail-test" doc:id="4f99240e-120c-4034-a433-3f46e33dae90" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="sftp:move" doc:id="8531e817-2be7-4fd2-be6b-5273c327cad6" processor="sftp:move" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Archive File" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cd377047-75a8-45b7-b61b-96fd81d498ec" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="azure-sftp-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[[]]" mediaType="application/csv" encoding="UTF-8" />
+					<munit-tools:error typeId="SFTP:ILLEGAL_PATH" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="DW set filename &amp; storeId" doc:id="04c15f72-727e-4e1e-b2b1-a392db0a269f" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'date': "2025-06-28"
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="delete:\inventory:retail-oracle-wms-sapi-config" doc:id="ceed9f35-45cd-40ff-94e9-e3e10e9e3f49" name="delete:\inventory:retail-oracle-wms-sapi-config" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:verify-call doc:name="Verify call" doc:id="e026dd9e-f39f-463b-ab5a-627c87181be1" processor="logger" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Start Logger" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="6fde780f-97df-4a76-aa23-2578d4712d22" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-suite-invalid-file-success-test" doc:id="e87eeacf-cb6f-4fc2-a3ba-2ae388de8216" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="sftp:write" doc:id="5096403c-dd5b-46c5-bbe9-8df2619ad5ca" processor="sftp:write" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Write to File" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f7fb6ae6-f0dc-40d8-a203-2db189770606" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="azure-sftp-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[[]]" mediaType="application/csv" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="DW set filename &amp; storeId" doc:id="3bd363f4-3bbc-410d-b3a3-c07c0fef19f7" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'date': "2025-06-28"
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<scatter-gather doc:name="Scatter-Gather" doc:id="e18aa6cc-c256-4cf9-9a59-a7c29b9292ef" >
+				<route >
+					<flow-ref doc:name="post:\inventory:application\csv:retail-oracle-wms-sapi-config" doc:id="d82c3569-92b4-4df3-af0f-97ab14dabcca" name="post:\inventory:application\csv:retail-oracle-wms-sapi-config" />
+				</route>
+				<route >
+					<flow-ref doc:name="post:\inventory:text\csv:retail-oracle-wms-sapi-config" doc:id="01cfc523-20e8-457b-b4d2-3be1f38bd06b" name="post:\inventory:text\csv:retail-oracle-wms-sapi-config"/>
+				</route>
+			</scatter-gather>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="a9ce88f9-6d02-4bcc-bd03-0caf94fd019f" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Start Logger" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cbe0be48-fa31-4e61-9de2-add84861f5d8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-suite-invalid-file-fail-test" doc:id="cf9900d8-792c-48b2-b625-6b25d56bde0e" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="sftp:write" doc:id="3e69667d-db46-421a-bbbd-c9a111f05188" processor="sftp:write" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Write to File" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f7fb6ae6-f0dc-40d8-a203-2db189770606" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="azure-sftp-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[[]]" mediaType="application/csv" encoding="UTF-8" />
+					<munit-tools:error typeId="SFTP:ILLEGAL_PATH" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<ee:transform doc:name="DW set filename &amp; storeId" doc:id="a90a8e1b-b7a8-4f05-98c0-e043b113a4cc" >
+				<ee:message >
+					<ee:set-attributes ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	queryParams: {
+		'date': "2025-06-28"
+	}
+}
+]]></ee:set-attributes>
+				</ee:message>
+			</ee:transform>
+			<scatter-gather doc:name="Scatter-Gather" doc:id="153cb71e-15ad-4d6a-8bb6-7b2fbbb3cead" >
+				<route >
+					<flow-ref doc:name="post:\inventory:application\csv:retail-oracle-wms-sapi-config" doc:id="2101fba6-a300-4ae8-8d1a-d781cc67ca40" name="post:\inventory:application\csv:retail-oracle-wms-sapi-config" />
+				</route>
+				<route >
+					<flow-ref doc:name="post:\inventory:text\csv:retail-oracle-wms-sapi-config" doc:id="617b41ac-c689-4c8f-9385-4789972af5ee" name="post:\inventory:text\csv:retail-oracle-wms-sapi-config" />
+				</route>
+			</scatter-gather>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call" doc:id="e77290f3-673f-43af-999f-a654e1dcba59" processor="logger" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="INFO" attributeName="level" />
+					<munit-tools:with-attribute whereValue="Start Logger" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="cbe0be48-fa31-4e61-9de2-add84861f5d8" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

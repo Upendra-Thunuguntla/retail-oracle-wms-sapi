@@ -59,6 +59,10 @@
 						<formats>
 							<format>html</format>
 						</formats>
+						<ignoreFlows>
+							<ignoreFlow>get:\health-check:retail-oracle-wms-sapi-config</ignoreFlow>
+						</ignoreFlows>
+
 					</coverage>
 				</configuration>
 			</plugin>
