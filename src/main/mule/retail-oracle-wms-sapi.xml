@@ -11,7 +11,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:error-response>
         </http:listener>
-        <apikit:router config-ref="retail-oracle-wms-sapi-config" />
+        <apikit:router config-ref="retail-oracle-wms-sapi-config" doc:id="e1001f12-bcc3-4106-b104-0930d042e4fb"/>
         <error-handler>
             <on-error-propagate type="APIKIT:BAD_REQUEST">
                 <ee:transform doc:name="Transform Message">
@@ -129,10 +129,10 @@ output application/json
             </ee:message>
         </ee:transform>
 		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="9e9d7a2e-28af-43b4-b566-a98ed7fb165f" >
-				<ee:transform doc:name="Transform Message" doc:id="80a5e966-1ce7-48e2-ac18-3940a24fc313" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="faca3378-d835-42a7-a689-21b9e79862c6" >
+				<ee:transform doc:name="Transform Message" doc:id="80a5e966-1ce7-48e2-ac18-3940a24fc313">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
@@ -149,7 +149,7 @@ output application/json
 }]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
-			</on-error-propagate>
+			</on-error-continue>
 		</error-handler>
     </flow>
     <flow name="post:\inventory:application\csv:retail-oracle-wms-sapi-config">
